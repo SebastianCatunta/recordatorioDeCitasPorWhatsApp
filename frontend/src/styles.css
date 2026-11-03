@@ -1,0 +1,284 @@
+:root {
+  /* Celestes: identidad */
+  --celeste-vivo: #7dd3fc;
+  --celeste-medio: #bae6fd;
+  --celeste-suave: #e0f2fe;
+
+  /* Blancos */
+  --blanco: #ffffff;
+  --blanco-diente: #f4fafe;
+
+  /* Acción */
+  --accion: #0369a1;
+  --accion-hover: #075985;
+
+  /* Texto */
+  --texto: #0b2a3c;
+  --texto-suave: #4a6579;
+  --borde: #d5e6f0;
+
+  /* Estados */
+  --exito: #0f7a4a;
+  --exito-suave: #ddf5e8;
+  --aviso: #8a4b08;
+  --aviso-suave: #fff1d6;
+  --error: #b3261e;
+  --error-suave: #fde7e5;
+
+  --fuente-titulo: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fuente-texto: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--blanco-diente);
+  color: var(--texto);
+  font-family: var(--fuente-texto);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Encabezado: aquí vive la curva de sonrisa, y solo aquí */
+.header {
+  background: var(--celeste-medio);
+  border-radius: 0 0 50% 50% / 0 0 32px 32px;
+  padding: 32px 16px 40px;
+  text-align: center;
+}
+
+.header__brand {
+  margin: 0;
+  font-family: var(--fuente-titulo);
+  font-weight: 800;
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+.header__clinic {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--texto-suave);
+}
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.toolbar__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  color: var(--texto-suave);
+}
+
+.toolbar__field input {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  background: var(--blanco);
+  color: var(--texto);
+  font: inherit;
+}
+
+/* Botones: píldora */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accion);
+  color: var(--blanco);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.button:hover:not(:disabled) {
+  background: var(--accion-hover);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.button--secondary {
+  background: var(--blanco);
+  color: var(--accion);
+  border: 1px solid var(--borde);
+}
+
+.button--secondary:hover:not(:disabled) {
+  background: var(--celeste-suave);
+}
+
+.button:focus-visible,
+.toolbar__field input:focus-visible {
+  outline: 3px solid var(--celeste-vivo);
+  outline-offset: 2px;
+}
+
+/* Progreso: barra recta */
+.progress {
+  margin-bottom: 24px;
+}
+
+.progress__label {
+  margin: 0 0 8px;
+  font-family: var(--fuente-titulo);
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.progress__track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--celeste-suave);
+  overflow: hidden;
+}
+
+.progress__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--celeste-vivo);
+  transition: width 200ms ease;
+}
+
+.progress__done {
+  margin: 12px 0 0;
+  font-weight: 600;
+}
+
+/* Lista y filas */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 20px;
+  background: var(--blanco);
+  box-shadow: 0 2px 8px rgba(3, 105, 161, 0.08);
+}
+
+.row--sent .row__info {
+  opacity: 0.6;
+}
+
+.row__info {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+}
+
+.row__time {
+  font-family: var(--fuente-titulo);
+  font-weight: 800;
+  font-size: 20px;
+}
+
+.row__name {
+  font-weight: 500;
+}
+
+/* Etiquetas de estado */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.tag--success {
+  background: var(--exito-suave);
+  color: var(--exito);
+}
+
+.tag--warning {
+  background: var(--aviso-suave);
+  color: var(--aviso);
+}
+
+.section {
+  margin-top: 32px;
+}
+
+.section__title {
+  margin: 0 0 4px;
+  font-family: var(--fuente-titulo);
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.section__hint {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: var(--texto-suave);
+}
+
+.message {
+  margin: 0 0 16px;
+  color: var(--texto-suave);
+}
+
+.message--error {
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--error-suave);
+  color: var(--error);
+  font-weight: 500;
+}
+
+@media (max-width: 480px) {
+  .row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .row .button,
+  .row .tag {
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress__fill {
+    transition: none;
+  }
+}
