@@ -4,6 +4,7 @@ import Header from './components/Header.jsx';
 import Progress from './components/Progress.jsx';
 import AppointmentRow from './components/AppointmentRow.jsx';
 import NoPhoneList from './components/NoPhoneList.jsx';
+import FollowupSection from './components/FollowupSection.jsx';
 
 export default function App() {
   const [fecha, setFecha] = useState(null); // null = mañana (lo decide el servidor)
@@ -11,6 +12,7 @@ export default function App() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [busyUid, setBusyUid] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const load = useCallback(async (selected) => {
     setLoading(true);
@@ -68,7 +70,7 @@ export default function App() {
               onChange={(event) => event.target.value && setFecha(event.target.value)}
             />
           </label>
-          <button type="button" className="button button--secondary" onClick={() => load(fecha)} disabled={loading}>
+          <button type="button" className="button button--secondary" onClick={() => { load(fecha); setRefreshKey((key) => key + 1); }} disabled={loading}>
             Actualizar
           </button>
         </div>
@@ -105,6 +107,8 @@ export default function App() {
             <NoPhoneList citas={sinTelefono} />
           </>
         )}
+
+        <FollowupSection refreshKey={refreshKey} />
       </main>
     </>
   );

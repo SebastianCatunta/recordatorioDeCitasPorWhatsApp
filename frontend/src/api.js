@@ -25,3 +25,16 @@ export async function markSent(eventUid, fecha) {
     body: JSON.stringify({ fecha }),
   });
 }
+
+export async function getSeguimientos() {
+  const response = await request('/api/seguimientos');
+  return response.json();
+}
+
+export async function markFollowupSent(pacienteId, ultimaCita) {
+  await request(`/api/seguimientos/${encodeURIComponent(pacienteId)}/enviado`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ultimaCita }),
+  });
+}
