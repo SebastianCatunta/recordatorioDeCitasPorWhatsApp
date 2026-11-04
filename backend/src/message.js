@@ -17,3 +17,13 @@ export function buildWhatsappLink({ telefono, ...datos }) {
   if (!telefono) return null;
   return `https://wa.me/${telefono}?text=${encodeURIComponent(buildMessage(datos))}`;
 }
+
+export function buildFollowupMessage({ nombre, siguienteSesion, consultorio, dentista }) {
+  const deDentista = dentista ? `, de ${dentista}` : '';
+  return `Hola ${nombre}, le escribimos del consultorio ${consultorio}${deDentista}. Quedó pendiente la sesión ${siguienteSesion} de su tratamiento. ¿Le agendamos su próxima cita? Gracias.`;
+}
+
+export function buildFollowupLink({ telefono, ...datos }) {
+  if (!telefono) return null;
+  return `https://wa.me/${telefono}?text=${encodeURIComponent(buildFollowupMessage(datos))}`;
+}

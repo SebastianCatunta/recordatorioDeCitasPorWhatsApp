@@ -6,5 +6,5 @@ const config = loadConfig();
 const pool = createPool(config.databaseUrl);
 const schema = await readFile(new URL('../db/schema.sql', import.meta.url), 'utf8');
 await pool.query(schema);
-console.log('Tabla reminders_sent lista.');
+console.log('Tablas reminders_sent y followups_sent listas.');
 await pool.end();

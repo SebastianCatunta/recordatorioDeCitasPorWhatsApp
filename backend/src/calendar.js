@@ -8,7 +8,7 @@ export async function fetchIcal(url) {
   return response.text();
 }
 
-function dateInZone(date, timezone) {
+export function dateInZone(date, timezone) {
   return new Intl.DateTimeFormat('en-CA', {
     timeZone: timezone,
     year: 'numeric',
@@ -43,6 +43,22 @@ export function appointmentsForDate(icsText, fecha, timezone) {
       descripcion: String(event.description ?? ''),
       hora: timeInZone(event.start, timezone),
       inicio: event.start,
+    }))
+    .sort((a, b) => a.inicio - b.inicio);
+}
+
+// Todas las citas del calendario (pasadas y futuras), sin canceladas, ordenadas por inicio.
+export function allAppointments(icsText, timezone) {
+  const parsed = ical.sync.parseICS(icsText);
+  return Object.values(parsed)
+    .filter((event) => event.type === 'VEVENT' && event.start && event.datetype !== 'date')
+    .filter((event) => event.status !== 'CANCELLED')
+    .map((event) => ({
+      uid: event.uid,
+      nombre: String(event.summary ?? '').trim() || 'Paciente',
+      descripcion: String(event.description ?? ''),
+      inicio: event.start,
+      fecha: dateInZone(event.start, timezone),
     }))
     .sort((a, b) => a.inicio - b.inicio);
 }
