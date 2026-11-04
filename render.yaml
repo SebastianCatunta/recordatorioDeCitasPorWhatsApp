@@ -1,0 +1,57 @@
+# Despliegue en Render (plan gratuito). Un solo servicio: Express sirve la API y el panel compilado.
+# Los secretos NO van aquí: las variables con "sync: false" las pide Render al crear el Blueprint.
+
+databases:
+  - name: sonrisa-db
+    plan: free
+    region: virginia
+    databaseName: recordatorios
+    user: recordatorios
+    # Solo accesible desde dentro de Render. Para consultarla desde tu computadora,
+    # agrega tu IP temporalmente en el panel de Render y quítala al terminar.
+    ipAllowList: []
+
+services:
+  - type: web
+    name: sonrisa-al-dia
+    runtime: node
+    plan: free
+    region: virginia
+    # Vite es dependencia de desarrollo: --include=dev evita que NODE_ENV=production la omita.
+    buildCommand: npm install --include=dev --prefix frontend && npm run build --prefix frontend && npm install --prefix backend
+    # db:init es idempotente (CREATE TABLE IF NOT EXISTS): no borra datos.
+    startCommand: npm run db:init --prefix backend && npm start --prefix backend
+    healthCheckPath: /api/salud
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: "1"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: sonrisa-db
+          property: connectionString
+      - key: PATIENT_ID_SECRET
+        generateValue: true
+      # Secretos: Render los pide al crear el Blueprint.
+      - key: ACCESS_PASSWORD
+        sync: false
+      - key: GOOGLE_CALENDAR_ICAL_URL
+        sync: false
+      # Configuración del consultorio de demostración (puedes cambiarla en el panel de Render).
+      - key: ACCESS_USER
+        value: asistente
+      - key: CLINIC_NAME
+        value: Consultorio Dental Sonrisa
+      - key: DENTIST_NAME
+        value: la Dra. Laura
+      - key: CLINIC_TIMEZONE
+        value: America/La_Paz
+      - key: DEFAULT_COUNTRY_CODE
+        value: "591"
+      - key: FOLLOWUP_MIN_DAYS
+        value: "1"
+      - key: FOLLOWUP_RESEND_DAYS
+        value: "3"

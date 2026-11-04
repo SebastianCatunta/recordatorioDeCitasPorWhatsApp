@@ -6,66 +6,66 @@ Marca `[x]` al terminar cada tarea. Hazlas en orden. `[P]` indica que puede hace
 
 ## Fase 1: Configuración y salud (~10 min)
 
-- [ ] **T1. Configuración de producción** en `backend/src/config.js`: leer `NODE_ENV`, `ACCESS_PASSWORD`, `ACCESS_USER` (por defecto `asistente`) y `TRUST_PROXY` (entero, por defecto 0). Con `NODE_ENV=production`, exigir `ACCESS_PASSWORD` de al menos 12 caracteres. Agregar `engines` en `backend/package.json`. Actualizar `.env.example` sin valores reales.
+- [x] **T1. Configuración de producción** en `backend/src/config.js`: leer `NODE_ENV`, `ACCESS_PASSWORD`, `ACCESS_USER` (por defecto `asistente`) y `TRUST_PROXY` (entero, por defecto 0). Con `NODE_ENV=production`, exigir `ACCESS_PASSWORD` de al menos 12 caracteres. Agregar `engines` en `backend/package.json`. Actualizar `.env.example` sin valores reales.
   - Listo cuando: en producción, sin clave o con una clave corta, `loadConfig` falla diciendo qué variable falta o por qué es débil; en desarrollo sigue arrancando sin clave. Pruebas en `test/config.test.js`. Cubre **CA12**.
-- [ ] **T2. Ruta de salud** `GET /api/salud` en `src/app.js` que responde `{ "estado": "ok" }`, sin base de datos ni calendario.
+- [x] **T2. Ruta de salud** `GET /api/salud` en `src/app.js` que responde `{ "estado": "ok" }`, sin base de datos ni calendario.
   - Listo cuando: responde 200 con y sin cabeceras de autorización y no hace ninguna consulta. Apoya **CA2**.
 
 ## Fase 2: Seguridad y clave de acceso, con pruebas (~25 min)
 
 Es la fase más importante. No pases a la Fase 3 sin que todas estas pruebas pasen.
 
-- [ ] **T3. Cabeceras de seguridad y HTTPS** en `src/security.js`: `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `X-Frame-Options: DENY`, sin `X-Powered-By`; en producción redirigir `http` a `https` con 301 según `X-Forwarded-Proto`, validando el `Host`. Pruebas en `test/security.test.js`:
+- [x] **T3. Cabeceras de seguridad y HTTPS** en `src/security.js`: `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `X-Frame-Options: DENY`, sin `X-Powered-By`; en producción redirigir `http` a `https` con 301 según `X-Forwarded-Proto`, validando el `Host`. Pruebas en `test/security.test.js`:
   - Las tres cabeceras están presentes y `X-Powered-By` no.
   - En producción, `X-Forwarded-Proto: http` redirige a `https://…` con 301; con `https` no redirige.
   - Un `Host` con caracteres raros responde 400 y no redirige.
   - `/api/salud` con `http` **no** redirige.
   - En desarrollo no redirige.
   - Listo cuando: `npm test` pasa. Cubre **CA7, CA8**.
-- [ ] **T4. Clave de acceso** en `src/auth.js`: autenticación básica con SHA-256 y `timingSafeEqual` para usuario y clave; aplicada con `app.use` antes de las rutas y de los archivos estáticos; `/api/salud` exenta. Respuesta `401` con `WWW-Authenticate: Basic realm="Sonrisa al dia"`. Pruebas en `test/auth.test.js`:
+- [x] **T4. Clave de acceso** en `src/auth.js`: autenticación básica con SHA-256 y `timingSafeEqual` para usuario y clave; aplicada con `app.use` antes de las rutas y de los archivos estáticos; `/api/salud` exenta. Respuesta `401` con `WWW-Authenticate: Basic realm="Sonrisa al dia"`. Pruebas en `test/auth.test.js`:
   - Sin cabecera de autorización: 401 en `/`, `/api/recordatorios`, `/api/seguimientos` y en un `POST /api/recordatorios/x/enviado`.
   - Clave incorrecta, usuario incorrecto y cabecera mal formada (`Basic` sin valor, base64 inválido, `Bearer x`, valores larguísimos): todos 401, sin error 500.
   - Clave correcta: 200.
   - Ninguna respuesta de error revela cuál de los dos datos falló.
   - Las pruebas de rutas existentes de 001 y 002 siguen pasando.
   - Listo cuando: `npm test` pasa. Cubre **CA1, CA2**.
-- [ ] **T5. Límite de intentos fallidos** en `src/auth.js`: 10 intentos fallidos por IP en 15 minutos y luego `429` con `Retry-After`, comprobado **antes** de validar la clave, con tope de entradas. La IP sale de `req.ip` (con `trust proxy` desde `TRUST_PROXY`). Pruebas con reloj falso:
+- [x] **T5. Límite de intentos fallidos** en `src/auth.js`: 10 intentos fallidos por IP en 15 minutos y luego `429` con `Retry-After`, comprobado **antes** de validar la clave, con tope de entradas. La IP sale de `req.ip` (con `trust proxy` desde `TRUST_PROXY`). Pruebas con reloj falso:
   - El intento 11 desde la misma IP responde 429, incluso con la clave correcta mientras dure el bloqueo.
   - Otra IP no se ve afectada.
   - Con `TRUST_PROXY=1`, dos `X-Forwarded-For` distintos se cuentan por separado; con `TRUST_PROXY=0` un `X-Forwarded-For` falso **no** cambia la IP contada.
   - Pasada la ventana el contador se reinicia.
   - El `Map` no crece más del tope.
   - Listo cuando: `npm test` pasa. Cubre **CA3**.
-- [ ] **T6. Endurecer entradas y errores** en `src/app.js` y las rutas: `express.json({ limit: '10kb' })` (cuerpo mayor responde 413 con mensaje amable), CORS solo si no es producción, `eventUid` con largo máximo de 256, y un manejador de errores que en producción registra solo `error.name` y responde el mismo mensaje genérico. Pruebas:
+- [x] **T6. Endurecer entradas y errores** en `src/app.js` y las rutas: `express.json({ limit: '10kb' })` (cuerpo mayor responde 413 con mensaje amable), CORS solo si no es producción, `eventUid` con largo máximo de 256, y un manejador de errores que en producción registra solo `error.name` y responde el mismo mensaje genérico. Pruebas:
   - Cuerpo de más de 10 KB: 413.
   - `eventUid` de 300 caracteres: 400.
   - Un error cuyo mensaje contiene una URL de calendario y una clave **no aparece** ni en la respuesta ni en lo registrado (se espía `console.error`).
   - Una ruta `/api/desconocida` responde 404 en JSON.
   - Listo cuando: `npm test` pasa. Cubre **CA9**.
-- [ ] **T7. Revisión de secretos y entradas** (sin código nuevo): buscar en `backend/src` cualquier `console.` que pueda imprimir el enlace iCal, la clave, `DATABASE_URL`, `req.headers` o un objeto de error completo; consultas SQL con concatenación; y uso de `dangerouslySetInnerHTML` en `frontend/src`. Anotar aquí el resultado.
+- [x] **T7. Revisión de secretos y entradas** (sin código nuevo): buscar en `backend/src` cualquier `console.` que pueda imprimir el enlace iCal, la clave, `DATABASE_URL`, `req.headers` o un objeto de error completo; consultas SQL con concatenación; y uso de `dangerouslySetInnerHTML` en `frontend/src`. Anotar aquí el resultado.
   - Listo cuando: no queda coincidencia sin justificar. Apoya **CA9, CA10**.
 
 ## Fase 3: Servir el panel (~10 min)
 
-- [ ] **T8. Servir `frontend/dist`** en `src/app.js`: `express.static` con `index.html` sin caché y `assets/` con caché larga; cualquier `GET` que no empiece por `/api` y no sea un archivo devuelve `index.html`; solo si existe `frontend/dist`. Pruebas con una carpeta temporal que imita `dist`:
+- [x] **T8. Servir `frontend/dist`** en `src/app.js`: `express.static` con `index.html` sin caché y `assets/` con caché larga; cualquier `GET` que no empiece por `/api` y no sea un archivo devuelve `index.html`; solo si existe `frontend/dist`. Pruebas con una carpeta temporal que imita `dist`:
   - `/` devuelve el `index.html`; `/cualquier/ruta` también.
   - `/api/desconocida` devuelve 404 JSON, **no** el HTML.
   - Un intento de recorrido de rutas (`/..%2f..%2fbackend%2f.env`, `/%2e%2e/package.json`) no devuelve archivos fuera de `dist`.
   - Todo lo anterior sin clave devuelve 401 (el panel también está cerrado).
   - Listo cuando: `npm test` pasa. Cubre **CA1, CA2, CA13**.
-- [ ] **T9. Prueba local de producción.** Compilar el panel (`npm run build` en `frontend/`), arrancar el backend con `NODE_ENV=production`, una `ACCESS_PASSWORD` de prueba y la base de datos local, y abrir `http://localhost:3001` en el navegador.
+- [~] **T9. Prueba local de producción.** (parcial: hecha con `curl` el 2026-11-04 contra PostgreSQL local, con clave, bloqueo a los 10 intentos y escritura en la base de datos. No se probó en un navegador porque en producción `http://localhost` redirige a `https`; la prueba en navegador se hace sobre Render en T17.) Compilar el panel (`npm run build` en `frontend/`), arrancar el backend con `NODE_ENV=production`, una `ACCESS_PASSWORD` de prueba y la base de datos local, y abrir `http://localhost:3001` en el navegador.
   - Listo cuando: pide clave, muestra el panel con datos y marcar "Enviado" persiste. Cubre una parte de **CA1, CA4, CA5, CA6**.
 
 ## Fase 4: Archivos de despliegue (~15 min)
 
-- [ ] **T10. `render.yaml`** en la raíz: servicio web de Node (plan `free`) con
+- [x] **T10. `render.yaml`** en la raíz: servicio web de Node (plan `free`) con
   - `buildCommand`: `npm install --include=dev --prefix frontend && npm run build --prefix frontend && npm install --prefix backend`
   - `startCommand`: `npm run db:init --prefix backend && npm start --prefix backend`
   - `healthCheckPath: /api/salud`
   - variables: `NODE_ENV=production`, `TRUST_PROXY=1`, `NODE_VERSION`, `DATABASE_URL` desde la base de datos, `PATIENT_ID_SECRET` con `generateValue: true`, `ACCESS_PASSWORD` y `GOOGLE_CALENDAR_ICAL_URL` con `sync: false`, y las de configuración del consultorio;
   - y una base de datos PostgreSQL (plan `free`) en la misma región.
   - Listo cuando: el archivo no contiene ningún valor secreto y es YAML válido. Cubre **CA11**.
-- [ ] **T11. Revisión del repositorio antes de publicar:** `.gitignore` cubre `.env`, `node_modules/` y `frontend/dist/`; buscar en el **historial de git** (no solo en los archivos actuales) la clave, `DATABASE_URL`, el enlace iCal y `PATIENT_ID_SECRET`; correr `npm audit` en `backend/` y `frontend/` y corregir las vulnerabilidades altas y críticas.
+- [x] **T11. Revisión del repositorio antes de publicar:** `.gitignore` cubre `.env`, `node_modules/` y `frontend/dist/`; buscar en el **historial de git** (no solo en los archivos actuales) la clave, `DATABASE_URL`, el enlace iCal y `PATIENT_ID_SECRET`; correr `npm audit` en `backend/` y `frontend/` y corregir las vulnerabilidades altas y críticas.
   - Listo cuando: el historial está limpio (si no, se cambia el secreto afectado) y `npm audit` no muestra altas ni críticas. Cubre **CA9**.
 - [ ] **T12. [TÚ] Calendario de demostración.** Crear un calendario nuevo en Google Calendar solo para la demostración, con citas ficticias para los próximos días: varias para mañana con teléfono de ejemplo, una sin teléfono, y pacientes de seguimiento (sesión 2 de 3 sin cita futura, una con cita futura, una sesión 3 de 3). Copiar su dirección secreta en formato iCal.
   - Listo cuando: tienes el enlace y confirmaste que no hay datos reales de nadie. Cubre **CA4, CA6**.

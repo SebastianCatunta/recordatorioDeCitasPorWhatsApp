@@ -4,6 +4,7 @@ import { normalizePhone } from '../phone.js';
 import { buildWhatsappLink } from '../message.js';
 
 const DATE_FORMAT = /^\d{4}-\d{2}-\d{2}$/;
+const MAX_EVENT_UID_LENGTH = 256;
 
 function isValidDate(fecha) {
   if (typeof fecha !== 'string' || !DATE_FORMAT.test(fecha)) return false;
@@ -57,6 +58,9 @@ export function createRecordatoriosRouter({ config, pool, getIcal }) {
   router.post('/:eventUid/enviado', async (req, res, next) => {
     try {
       const { fecha } = req.body ?? {};
+      if (req.params.eventUid.length > MAX_EVENT_UID_LENGTH) {
+        return res.status(400).json({ error: 'La cita no es válida. Actualiza la lista e intenta de nuevo.' });
+      }
       if (!isValidDate(fecha)) {
         return res.status(400).json({ error: 'La fecha debe tener el formato AAAA-MM-DD.' });
       }
